@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XPStar — Монетизируй свой Telegram чат</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #FFD700;
+            --gold-dark: #B8860B;
+            --gold-light: #FFF4B8;
+            --dark: #0A0A0F;
+            --dark-card: #12121A;
+            --dark-border: #1E1E2A;
+            --purple: #8B5CF6;
+            --blue: #3B82F6;
+            --green: #10B981;
+            --text: #E4E4E7;
+            --text-muted: #71717A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Unbounded', sans-serif;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-pattern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 60%);
+            animation: bgPulse 15s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.1) rotate(3deg); opacity: 0.8; }
+        }
+
+        /* Floating stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+            line-height: 1;
+        }
+
+        .nav-cta {
+            padding: 0.75rem 1.75rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--dark);
+            font-weight: 600;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.8125rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+            white-space: nowrap;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 7rem 2rem 4rem;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            color: var(--gold);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-badge .badge-icon {
+            font-size: 1rem;
+            line-height: 1;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.25rem, 7vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-muted);
+            max-width: 640px;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .btn-primary, .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 0.9375rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--dark);
+            box-shadow: 0 4px 25px rgba(255, 215, 0, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(255, 215, 0, 0.45);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--dark-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .btn-icon {
+            font-size: 1.125rem;
+            line-height: 1;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Two products badges */
+        .products-badges {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .product-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 1rem 1.5rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .product-badge:hover {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .product-badge-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .product-badge-text {
+            text-align: left;
+        }
+
+        .product-badge-title {
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            line-height: 1.3;
+        }
+
+        .product-badge-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+            margin-top: 0.125rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 3.5rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 2rem;
+            border-top: 1px solid var(--dark-border);
+            border-bottom: 1px solid var(--dark-border);
+            background: rgba(18, 18, 26, 0.5);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-top: 0.375rem;
+            line-height: 1.3;
+        }
+
+        /* Calculator Section */
+        .calculator {
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-card) 50%, var(--dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .calculator-container {
+            max-width: 850px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .calculator-card {
+            background: var(--dark-card);
+            border: 2px solid var(--gold);
+            border-radius: 28px;
+            padding: 2.5rem;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.15);
+        }
+
+        .calculator-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .calculator-header h2 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .calculator-header h2 .calc-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .calculator-header p {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+        }
+
+        .calculator-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .calc-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+
+        .calc-input-group label {
+            font-weight: 500;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .calc-input-group label .label-icon {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .calc-input-group input {
+            background: var(--dark);
+            border: 2px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1.125rem;
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 600;
+            color: var(--text);
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .calc-input-group input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .calc-input-group input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .calculator-results {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(184, 134, 11, 0.05) 100%);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            padding: 1.75rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .result-item {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .result-label {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.375rem;
+            line-height: 1.3;
+        }
+
+        .result-value {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1.2;
+        }
+
+        .result-value.highlight-big {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gold) 0%, #FFF 50%, var(--gold) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        .calc-note {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+        }
+
+        /* Revenue Sources */
+        .revenue-sources {
+            padding: 6rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-header p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .revenue-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .revenue-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 24px;
+            padding: 2.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .revenue-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .revenue-card.casino::before {
+            background: linear-gradient(90deg, var(--purple), var(--blue));
+        }
+
+        .revenue-card.stars::before {
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        }
+
+        .revenue-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .revenue-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem;
+            line-height: 1;
+            margin-bottom: 1.25rem;
+        }
+
+        .revenue-card.casino .revenue-icon {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+        }
+
+        .revenue-card.stars .revenue-icon {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 244, 184, 0.1) 100%);
+        }
+
+        .revenue-card h3 {
+            font-size: 1.375rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .revenue-card > p {
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+        }
+
+        .revenue-features {
+            list-style: none;
+        }
+
+        .revenue-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.375rem 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .revenue-features li .check-icon {
+            color: var(--green);
+            font-weight: 700;
+            font-size: 0.875rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .commission-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-top: 1rem;
+        }
+
+        .revenue-card.casino .commission-badge {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+        }
+
+        .revenue-card.stars .commission-badge {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--gold);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--purple), var(--blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.375rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon.gold { background: rgba(255, 215, 0, 0.15); }
+        .feature-icon.purple { background: rgba(139, 92, 246, 0.15); }
+        .feature-icon.blue { background: rgba(59, 130, 246, 0.15); }
+        .feature-icon.green { background: rgba(16, 185, 129, 0.15); }
+
+        .feature-card h3 {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: var(--dark-card);
+            border-top: 1px solid var(--dark-border);
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .steps {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.75rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.375rem;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1;
+        }
+
+        .step-content h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.375rem;
+        }
+
+        .step-content p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Games preview */
+        .games {
+            padding: 6rem 2rem;
+        }
+
+        .games-grid {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+
+        .game-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold);
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.12);
+        }
+
+        .game-emoji {
+            font-size: 2.5rem;
+            line-height: 1;
+            margin-bottom: 0.75rem;
+        }
+
+        .game-name {
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        /* Live ticker */
+        .ticker {
+            padding: 0.875rem 0;
+            background: var(--dark-card);
+            border-top: 1px solid var(--dark-border);
+            border-bottom: 1px solid var(--dark-border);
+            overflow: hidden;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: ticker 30s linear infinite;
+            width: max-content;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0 2rem;
+            white-space: nowrap;
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+        }
+
+        .ticker-item .ticker-icon {
+            font-size: 0.875rem;
+            line-height: 1;
+        }
+
+        .ticker-item .amount {
+            color: var(--gold);
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 600;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta h2 {
+            font-size: clamp(1.75rem, 4vw, 2.75rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .cta p {
+            font-size: 1.0625rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+        }
+
+        .cta .btn-primary {
+            font-size: 1.0625rem;
+            padding: 1.125rem 2.75rem;
+            position: relative;
+            min-width: 240px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--dark-border);
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+        }
+
+        footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.25rem;
+            }
+
+            .logo {
+                font-size: 1.25rem;
+            }
+
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+
+            .nav-cta {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.75rem;
+            }
+
+            .hero {
+                padding: 6rem 1.25rem 3rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .products-badges {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .product-badge {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+                padding: 2.5rem 1.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.75rem;
+            }
+
+            .calculator, .revenue-sources, .features, .how-it-works, .games, .cta {
+                padding: 4rem 1.25rem;
+            }
+
+            .calculator-card {
+                padding: 1.75rem 1.25rem;
+            }
+
+            .calculator-inputs {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .result-value {
+                font-size: 1.125rem;
+            }
+
+            .result-value.highlight-big {
+                font-size: 1.375rem;
+            }
+
+            .revenue-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .games-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+            }
+
+            .game-card {
+                padding: 1.25rem 0.75rem;
+            }
+
+            .game-emoji {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="stars" id="stars"></div>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-icon">⭐</div>
+            <span>XPStar</span>
+        </div>
+        <a href="https://t.me/xpstar_bot" class="nav-cta" target="_blank">Запустить бота</a>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="badge-icon">🔥</span>
+            <span>2 источника дохода в одном боте</span>
+        </div>
+        <h1>
+            Превратите свой чат<br>
+            в <span class="highlight">денежную машину</span>
+        </h1>
+        <p class="hero-subtitle">
+            Казино на TON + продажа Telegram Stars. Подключите бота к своему чату 
+            и получайте комиссию с каждой ставки и каждой покупки звёзд.
+        </p>
+        <div class="hero-cta">
+            <a href="https://t.me/xpstar_bot" class="btn-primary" target="_blank">
+                <span class="btn-icon">🚀</span>
+                <span>Начать зарабатывать</span>
+            </a>
+            <a href="#calculator" class="btn-secondary">
+                <span>Рассчитать доход</span>
+            </a>
+        </div>
+        <div class="products-badges">
+            <div class="product-badge">
+                <div class="product-badge-icon">🎰</div>
+                <div class="product-badge-text">
+                    <div class="product-badge-title">Казино</div>
+                    <div class="product-badge-desc">6 игр на TON</div>
+                </div>
+            </div>
+            <div class="product-badge">
+                <div class="product-badge-icon">⭐</div>
+                <div class="product-badge-text">
+                    <div class="product-badge-title">Stars Store</div>
+                    <div class="product-badge-desc">Продажа звёзд</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live ticker -->
+    <div class="ticker">
+        <div class="ticker-content">
+            <div class="ticker-item"><span class="ticker-icon">💰</span> Партнёр получил <span class="amount">+127 TON</span> комиссии</div>
+            <div class="ticker-item"><span class="ticker-icon">⭐</span> Продано <span class="amount">5,000 Stars</span></div>
+            <div class="ticker-item"><span class="ticker-icon">🎰</span> Джекпот <span class="amount">×15</span> в слотах!</div>
+            <div class="ticker-item"><span class="ticker-icon">💰</span> Партнёр получил <span class="amount">+89 TON</span> комиссии</div>
+            <div class="ticker-item"><span class="ticker-icon">⭐</span> Продано <span class="amount">2,500 Stars</span></div>
+            <div class="ticker-item"><span class="ticker-icon">🏀</span> Чистый бросок <span class="amount">×2.25</span>!</div>
+            <div class="ticker-item"><span class="ticker-icon">💰</span> Партнёр получил <span class="amount">+127 TON</span> комиссии</div>
+            <div class="ticker-item"><span class="ticker-icon">⭐</span> Продано <span class="amount">5,000 Stars</span></div>
+            <div class="ticker-item"><span class="ticker-icon">🎰</span> Джекпот <span class="amount">×15</span> в слотах!</div>
+            <div class="ticker-item"><span class="ticker-icon">💰</span> Партнёр получил <span class="amount">+89 TON</span> комиссии</div>
+            <div class="ticker-item"><span class="ticker-icon">⭐</span> Продано <span class="amount">2,500 Stars</span></div>
+            <div class="ticker-item"><span class="ticker-icon">🏀</span> Чистый бросок <span class="amount">×2.25</span>!</div>
+        </div>
+    </div>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-value">40%</div>
+            <div class="stat-label">Комиссия с казино</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">10%</div>
+            <div class="stat-label">Комиссия со Stars</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">2</div>
+            <div class="stat-label">Источника дохода</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">24/7</div>
+            <div class="stat-label">Автоматизация</div>
+        </div>
+    </section>
+
+    <!-- Calculator -->
+    <section class="calculator" id="calculator">
+        <div class="calculator-container">
+            <div class="calculator-card">
+                <div class="calculator-header">
+                    <h2><span class="calc-icon">💰</span> Калькулятор дохода</h2>
+                    <p>Узнайте сколько вы можете заработать с XPStar</p>
+                </div>
+                <div class="calculator-inputs">
+                    <div class="calc-input-group">
+                        <label><span class="label-icon">👥</span> Активных игроков в день</label>
+                        <input type="number" id="calc-players" value="50" min="1" max="10000">
+                    </div>
+                    <div class="calc-input-group">
+                        <label><span class="label-icon">🎰</span> Средняя ставка (TON)</label>
+                        <input type="number" id="calc-bet" value="5" min="0.1" max="1000" step="0.1">
+                    </div>
+                    <div class="calc-input-group">
+                        <label><span class="label-icon">🔄</span> Ставок на игрока в день</label>
+                        <input type="number" id="calc-spins" value="10" min="1" max="100">
+                    </div>
+                    <div class="calc-input-group">
+                        <label><span class="label-icon">⭐</span> Покупок Stars в день</label>
+                        <input type="number" id="calc-stars" value="5" min="0" max="1000">
+                    </div>
+                </div>
+                <div class="calculator-results">
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-label">Объём казино / день</div>
+                            <div class="result-value" id="result-volume">2,500 TON</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Комиссия казино</div>
+                            <div class="result-value" id="result-casino">250 TON</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Комиссия Stars</div>
+                            <div class="result-value" id="result-stars">25 TON</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Доход в месяц</div>
+                            <div class="result-value highlight-big" id="result-monthly">$8,250</div>
+                        </div>
+                    </div>
+                </div>
+                <p class="calc-note">* Расчёт при house edge ~10% для казино и средней покупке 50 Stars (~5 TON)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Revenue Sources -->
+    <section class="revenue-sources">
+        <div class="section-header">
+            <h2>Два источника дохода</h2>
+            <p>Максимизируйте прибыль с каждого участника вашего чата</p>
+        </div>
+        <div class="revenue-cards">
+            <div class="revenue-card casino">
+                <div class="revenue-icon">🎰</div>
+                <h3>Казино на TON</h3>
+                <p>6 честных игр с использованием официального Telegram Dice API. Прозрачные шансы, мгновенные выплаты.</p>
+                <ul class="revenue-features">
+                    <li><span class="check-icon">✓</span> Слоты, кубик, футбол, баскетбол, дартс, боулинг</li>
+                    <li><span class="check-icon">✓</span> Прогрессивная комиссия от объёма</li>
+                    <li><span class="check-icon">✓</span> Демо-режим для привлечения игроков</li>
+                    <li><span class="check-icon">✓</span> Лидерборды и соревнования</li>
+                </ul>
+                <div class="commission-badge">До 40% комиссии</div>
+            </div>
+            <div class="revenue-card stars">
+                <div class="revenue-icon">⭐</div>
+                <h3>Продажа Telegram Stars</h3>
+                <p>Ваши участники покупают Stars за TON по выгодному курсу. Вы получаете комиссию с каждой продажи.</p>
+                <ul class="revenue-features">
+                    <li><span class="check-icon">✓</span> Лучший курс Stars на рынке</li>
+                    <li><span class="check-icon">✓</span> Моментальная доставка звёзд</li>
+                    <li><span class="check-icon">✓</span> Оплата в TON через CryptoPay</li>
+                    <li><span class="check-icon">✓</span> Автоматические транзакции</li>
+                </ul>
+                <div class="commission-badge">10% комиссии</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="section-header">
+            <h2>Почему XPStar?</h2>
+            <p>Всё что нужно для успешной монетизации</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon gold">💰</div>
+                <h3>Два источника дохода</h3>
+                <p>Зарабатывайте и с казино, и с продажи Stars одновременно.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon purple">🎮</div>
+                <h3>6 честных игр</h3>
+                <p>Официальный Telegram Dice API гарантирует честность.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon blue">⚡</div>
+                <h3>Мгновенные выплаты</h3>
+                <p>Вывод на баланс или TON-кошелёк без задержек.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon green">📊</div>
+                <h3>Полная аналитика</h3>
+                <p>Отслеживайте объёмы и комиссии в реальном времени.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon gold">🔒</div>
+                <h3>Безопасность</h3>
+                <p>Все транзакции в блокчейне TON. Без фиата.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon purple">🎯</div>
+                <h3>Демо-режим</h3>
+                <p>100 виртуальных TON для знакомства с играми.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how">
+        <div class="section-header">
+            <h2>Как начать зарабатывать</h2>
+            <p>Три простых шага до пассивного дохода</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Добавьте бота в группу</h3>
+                    <p>Добавьте @xpstar_bot в ваш Telegram чат и назначьте администратором. Займёт 30 секунд.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Активируйте партнёрку</h3>
+                    <p>Перейдите в раздел «Партнёрская программа» в боте и привяжите свой чат.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Получайте комиссию</h3>
+                    <p>Участники играют и покупают Stars — вы зарабатываете автоматически.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="games">
+        <div class="section-header">
+            <h2>Игры для каждого</h2>
+            <p>Разнообразие — ключ к вовлечённости аудитории</p>
+        </div>
+        <div class="games-grid">
+            <div class="game-card">
+                <div class="game-emoji">🎰</div>
+                <div class="game-name">Слоты</div>
+            </div>
+            <div class="game-card">
+                <div class="game-emoji">🎲</div>
+                <div class="game-name">Кубик</div>
+            </div>
+            <div class="game-card">
+                <div class="game-emoji">⚽</div>
+                <div class="game-name">Футбол</div>
+            </div>
+            <div class="game-card">
+                <div class="game-emoji">🏀</div>
+                <div class="game-name">Баскетбол</div>
+            </div>
+            <div class="game-card">
+                <div class="game-emoji">🎯</div>
+                <div class="game-name">Дартс</div>
+            </div>
+            <div class="game-card">
+                <div class="game-emoji">🎳</div>
+                <div class="game-name">Боулинг</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>Готовы начать?</h2>
+        <p>Присоединяйтесь к владельцам чатов, которые уже зарабатывают</p>
+        <a href="https://t.me/xpstar_bot" class="btn-primary" target="_blank">
+            <span class="btn-icon">⭐</span>
+            <span>Запустить XPStar</span>
+        </a>
+    </section>
+
+    <footer>
+        <p>© 2026 XPStar. Все права защищены.</p>
+        <p style="margin-top: 0.5rem;">
+            <a href="https://t.me/xpstar_bot" target="_blank">@xpstar_bot</a>
+        </p>
+    </footer>
+
+    <script>
+        // Generate floating stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.animationDuration = (2 + Math.random() * 2) + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Calculator logic
+        const calcPlayers = document.getElementById('calc-players');
+        const calcBet = document.getElementById('calc-bet');
+        const calcSpins = document.getElementById('calc-spins');
+        const calcStars = document.getElementById('calc-stars');
+
+        const resultVolume = document.getElementById('result-volume');
+        const resultCasino = document.getElementById('result-casino');
+        const resultStarsEl = document.getElementById('result-stars');
+        const resultMonthly = document.getElementById('result-monthly');
+
+        function calculateIncome() {
+            const players = parseInt(calcPlayers.value) || 0;
+            const bet = parseFloat(calcBet.value) || 0;
+            const spins = parseInt(calcSpins.value) || 0;
+            const starsPerDay = parseInt(calcStars.value) || 0;
+
+            // Daily volume
+            const dailyVolume = players * bet * spins;
+            
+            // Casino commission (house edge ~10%, partner gets 40% of that = 4% of volume)
+            const casinoCommission = dailyVolume * 0.04;
+            
+            // Stars commission (10% of ~5 TON per purchase)
+            const starsCommission = starsPerDay * 5 * 0.10;
+            
+            // Monthly total in TON
+            const monthlyTON = (casinoCommission + starsCommission) * 30;
+            
+            // Convert to USD (assuming 1 TON ≈ $3)
+            const monthlyUSD = monthlyTON * 3;
+
+            // Update display
+            resultVolume.textContent = dailyVolume.toLocaleString() + ' TON';
+            resultCasino.textContent = casinoCommission.toFixed(1) + ' TON';
+            resultStarsEl.textContent = starsCommission.toFixed(1) + ' TON';
+            resultMonthly.textContent = '$' + Math.round(monthlyUSD).toLocaleString();
+        }
+
+        // Add event listeners
+        [calcPlayers, calcBet, calcSpins, calcStars].forEach(input => {
+            input.addEventListener('input', calculateIncome);
+        });
+
+        // Initial calculation
+        calculateIncome();
+    </script>
+</body>
+</html>
